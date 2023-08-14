@@ -1,20 +1,31 @@
-//   name          result        chord keys
+//   name              result                        chord keys
 
 // control
-COMB(UY_ESC,       KC_ESC,       KC_U, KC_Y)
-COMB(RSD_TAB,      KC_TAB,       LALT_T(KC_R), LSFT_T(KC_S), KC_D)
-COMB(WF_CBSPC,     C(KC_BSPC),   LT(2, KC_W), KC_F)
+COMB(UY_ESC,           KC_ESC,                                      KC_U, KC_Y)
+SUBS(AWF_SFT_ENT,      SS_DOWN(X_LSFT) SS_TAP(X_ENT) SS_UP(X_LSFT), LT(2, KC_W), KC_F, LCTL_T(KC_T))
+SUBS(YUN_SFT_ENT,      SS_DOWN(X_LSFT) SS_TAP(X_ENT) SS_UP(X_LSFT), KC_Y, KC_U, RCTL_T(KC_N))
+COMB(RSD_TAB,          KC_TAB,                                      LALT_T(KC_R), LSFT_T(KC_S), KC_D)
+COMB(WF_CBSPC,         C(KC_BSPC),                                  LT(2, KC_W), KC_F)
 
 // general typing
-SUBS(DLI_LIJK,      "lijk",      KC_D, KC_L, LALT_T(KC_I))
-SUBS(DIT_IJK,       "ijk",       KC_D, RCTL_T(KC_N), LALT_T(KC_I))
-SUBS(DIE_IJ,        "ij",        KC_D, RSFT_T(KC_E), LALT_T(KC_I))
+SUBS(DUI_LIJK,         "lijk",                       KC_D, KC_U, LALT_T(KC_I))
+SUBS(DIN_IJK,          "ijk",                        KC_D, RCTL_T(KC_N), LALT_T(KC_I))
+SUBS(DIE_IJ,           "ij",                         KC_D, RSFT_T(KC_E), LALT_T(KC_I))
 
-// programming keywords
-SUBS(PL_FUNCTION,  "function ",  KC_P, KC_L)
-SUBS(FU_RETURN,    "return ",    KC_F, KC_U)
-SUBS(WY_PRIVATE,   "private ",   LT(2, KC_W), KC_Y)
-SUBS(WY_LS_PUBLIC, "protected ", LT(2, KC_W), KC_Y, LSFT_T(KC_S))
-SUBS(WY_RS_PUBLIC, "protected ", LT(2, KC_W), KC_Y, RSFT_T(KC_E))
-SUBS(WY_LC_PUBLIC, "public ",    LT(2, KC_W), KC_Y, LCTL_T(KC_T))
-SUBS(WY_RC_PUBLIC, "public ",    LT(2, KC_W), KC_Y, RCTL_T(KC_N))
+// programming
+SUBS(PL_FUNCTION,      "function ()" SS_TAP(X_LEFT), KC_P, KC_L)
+SUBS(PL_LS_FN,         "fn => ()" SS_TAP(X_LEFT),    KC_P, KC_L, LSFT_T(KC_S) )
+SUBS(PL_RS_FN,         "fn => ()" SS_TAP(X_LEFT),    KC_P, KC_L, RSFT_T(KC_E) )
+SUBS(FU_RETURN,        "return ",                    KC_F, KC_U)
+SUBS(WY_PRIVATE,       "private ",                   LT(2, KC_W), KC_Y)
+SUBS(WY_LS_PUBLIC,     "protected ",                 LT(2, KC_W), KC_Y, LSFT_T(KC_S))
+SUBS(WY_RS_PUBLIC,     "protected ",                 LT(2, KC_W), KC_Y, RSFT_T(KC_E))
+SUBS(WY_LC_PUBLIC,     "public ",                    LT(2, KC_W), KC_Y, LCTL_T(KC_T))
+SUBS(WY_RC_PUBLIC,     "public ",                    LT(2, KC_W), KC_Y, RCTL_T(KC_N))
+SUBS(QSCLL_FOREACH,    "foreach ()" SS_TAP(X_LEFT),  KC_Q, KC_SCLN)
+SUBS(DH_ARRAY,         "array",                      KC_D, KC_H)
+
+// programming symbols
+SUBS(BJ_SYM,           "```" SS_DOWN(X_LSFT) SS_TAP(X_ENT) SS_TAP(X_ENT) SS_UP(X_LSFT) "```" SS_TAP(X_UP) SS_TAP(X_UP),  LT(3, KC_SPACE), KC_B, KC_J) // Fenced codeblock
+SUBS(WY_SYM,           "$this->",                                                                                        LT(3, KC_SPACE), LT(2, KC_W), KC_Y)
+
