@@ -79,48 +79,6 @@ bool get_permissive_hold(uint16_t keycode, keyrecord_t *record) {
     }
 }
 
-// Prevent triggering mod-tap hold when rolling same-hand letters
-bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-    switch (keycode) {
-        case RCTL_T(KC_N):
-            if (record->event.pressed && record->tap.count > 0) {
-                if (get_mods() & MOD_BIT(KC_RSFT)) {
-                    unregister_mods(MOD_BIT(KC_RSFT));
-                    tap_code(KC_E);
-                    tap_code(KC_N);
-                    add_mods(MOD_BIT(KC_RSFT));
-                    return false;
-                }
-            }
-            return true;
-
-        case KC_Y:
-            if (record->event.pressed && record->tap.count > 0) {
-                if (get_mods() & MOD_BIT(KC_RSFT)) {
-                    unregister_mods(MOD_BIT(KC_RSFT));
-                    tap_code(KC_E);
-                    tap_code(KC_Y);
-                    add_mods(MOD_BIT(KC_RSFT));
-                    return false;
-                }
-            }
-            return true;
-
-        case LCTL_T(KC_T):
-            if (record->event.pressed && record->tap.count > 0) {
-                if (get_mods() & MOD_BIT(KC_LSFT)) {
-                    unregister_mods(MOD_BIT(KC_LSFT));
-                    tap_code(KC_S);
-                    tap_code(KC_T);
-                    add_mods(MOD_BIT(KC_LSFT));
-                    return false;
-                }
-            }
-            return true;
-        }
-        return true;
-};
-
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     /* 0: Main Layer
