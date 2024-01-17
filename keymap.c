@@ -17,7 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include QMK_KEYBOARD_H
-#include <g/keymap_combo.h>
+#include "g/keymap_combo.h"
 
 // Layers
 #define _MAIN 0  // Colemak_DH, with home row mods
