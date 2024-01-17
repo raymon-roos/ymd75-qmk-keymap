@@ -20,10 +20,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <g/keymap_combo.h>
 
 // Layers
-#define _MAIN 0 // Colemak_DH, with home row mods
-#define _FN 1   // LED controls and bootmagic
-#define _NAV 2  // Navigation/edit layer. Put arrow keys, backspace/delete, and modifiers right on the home row
-#define _SYM 3  // Numbers and symbols
+#define _MAIN 0  // Colemak_DH, with home row mods
+#define _FN 1    // LED controls and bootmagic
+#define _NAV 2   // Navigation/edit layer. Put arrow keys, backspace/delete, and modifiers right on the home row
+#define _SYM 3   // Numbers and symbols
+#define _QWER 4  // Layer with stock qwerty, for use with plover
 
 enum custom_keycodes {
     P_MACRO = SAFE_RANGE
@@ -62,9 +63,9 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
 }
 
 // A short tap of a second key will still resolve as a modified key, as long as
-// the mod-tap key is hold for at least as long as TAPPING_TERM Whithout this,
-// a mod-tap hold must be hold for as long as TAPPING_TERM, and only after that
-// do other keys resolve with a modifier Enabled only for shift-taps, because
+// the mod-tap key is hold for at least as long as TAPPING_TERM. Whithout this,
+// a mod-tap hold must be held for as long as TAPPING_TERM, and only after that
+// do other keys resolve with a modifier. Enabled only for shift-taps, because
 // those are the only modifiers playing a role in regular typing, so I want as
 // immediate access to them as possible.
 bool get_permissive_hold(uint16_t keycode, keyrecord_t *record) {
@@ -194,7 +195,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______,  _______,  _______,                       KC_ENT,                                          _______,  _______,  _______,  _______,  _______,  _______
     ),
 
-    /* 3: Nav/edit layer
+    /* 3: Numbers/symbols layer
      * ┌─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┐
      * │     │     │     │     │     │     │     │     │     │     │     │     │     │     │     │     │
      * ├─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┴─────┼─────┤
@@ -215,7 +216,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______,  KC_1,     KC_2,     KC_3,     KC_4,     KC_5,     KC_6,     KC_7,     KC_8,     KC_9,     KC_0,     _______,  _______,  _______,            _______,
         _______,  KC_EQL,   KC_LBRC,  KC_LCBR,  KC_LPRN,  KC_PIPE,  KC_ASTR,  KC_RPRN,  KC_RCBR,  KC_RBRC,  KC_DLR,   _______,  _______,                      _______,
         _______,  KC_BSLS,  KC_PERC,  KC_MINS,  KC_UNDS,  _______,  KC_AMPR,  KC_GT,    KC_PLUS,  _______,  _______,  _______,  _______,                      _______,
-        _______,  _______,  _______,                    SYM_SPC,                                            _______,  _______,  _______,  _______,  _______,  _______
+        _______,  _______,  _______,                                SYM_SPC,                                _______,  _______,  _______,  _______,  _______,  _______
     ),
 
 };
