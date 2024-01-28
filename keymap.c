@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include QMK_KEYBOARD_H
 #include "g/keymap_combo.h"
+#include "features/achordion.h"
 
 // Layers
 #define _MAIN 0  // Colemak_DH, with home row mods
@@ -55,24 +56,128 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
         case CTRL_T:
         case CTRL_N:
         case SYM_SPC:
-            return TAPPING_TERM - 25;
+            return TAPPING_TERM - 30;
 
         default:
             return TAPPING_TERM;
     }
 }
 
+// Bilateral combinations exceptions (allow same-hand mods)
+bool achordion_chord(
+    uint16_t tap_hold_keycode,
+    keyrecord_t* tap_hold_record,
+    uint16_t other_keycode,
+    keyrecord_t* other_record
+) {
+    // Allow same-hand mods with number row
+    if (other_record->event.key.row == 1) {
+        return true;
+    }
+
+    switch (tap_hold_keycode) {
+        // Fix incorrect bilateral combinations for on my keeb
+        case NAV_W:
+        case SYM_SPC:
+            return true;
+        case SFT_S:
+            switch (other_keycode) {
+                case KC_J:
+                case KC_M:
+                case KC_Z:
+                    return true;
+            }
+        case SFT_E:
+            switch (other_keycode) { // manually block same-side shift
+                case KC_J:
+                case KC_M:
+                    return false;
+            }
+
+        case CTRL_T:
+            switch (other_keycode) {
+                case KC_X:
+                case KC_C:
+                    return true;
+            }
+        // Exceptions for window manager operations
+        case GUI_A:
+            switch (other_keycode) {
+                case ALT_R:
+                case SFT_S:
+                case NAV_W:
+                case KC_F:
+                case KC_M:
+                    return true;
+            }
+        case GUI_O:
+            switch (other_keycode) {
+                case KC_COMM:
+                case KC_DOT:
+                case CTRL_N:
+                case ALT_I:
+                case SFT_E:
+                case KC_H:
+                case KC_M:
+                    return true;
+            }
+
+        case ALT_R:
+            switch (other_keycode) {
+                case KC_C: // for fzf find dir
+                    return true;
+            }
+    }
+
+    // by default, follow the opposite hands rule.
+    return achordion_opposite_hands(tap_hold_record, other_record);
+}
+
+bool process_record_user(uint16_t keycode, keyrecord_t* record) {
+    if (!process_achordion(keycode, record)) {
+        return false;
+    }
+
+    return true;
+}
+
+void matrix_scan_user(void) {
+    achordion_task();
+}
+
+// Exceptions for achordion (use default qmk tap_hold decision instead)
+// uint16_t achordion_timeout(uint16_t tap_hold_keycode) {
+//     switch (tap_hold_keycode) {
+//         case NAV_W:
+//         case SYM_SPC:
+//             return 0;  // Bypass Achordion for these keys.
+//     }
+//
+//     return 1000;  // Otherwise use a timeout in ms.
+// }
+
+// If a modtap key is pressed within this window after a regular key,
+// always resolve to tap (for fast typing)
+uint16_t achordion_streak_timeout(uint16_t tap_hold_keycode) {
+    return 80;
+}
+
+// Temporarily apply modifier, while still deciding whether to resolve to hold
+// Useful for mod + mouse click
+bool achordion_eager_mod(uint8_t mod) {
+    return true;
+}
+
 // A short tap of a second key will still resolve as a modified key, as long as
-// the mod-tap key is hold for at least as long as TAPPING_TERM. Whithout this,
+// the mod-tap key is hold for at least as long as TAPPING_TERM. Without this,
 // a mod-tap hold must be held for as long as TAPPING_TERM, and only after that
-// do other keys resolve with a modifier. Enabled only for shift-taps, because
-// those are the only modifiers playing a role in regular typing, so I want as
-// immediate access to them as possible.
+// do other keys resolve with a modifier.
 bool get_permissive_hold(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
-        case LSFT_T(KC_S):
-            return true;
-        case RSFT_T(KC_E):
+        case SFT_S:
+        case SFT_E:
+        case NAV_W:
+        case SYM_SPC:
             return true;
         default:
             return false;
@@ -188,4 +293,28 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_LSFT,       KC_Z,     KC_X,     KC_C,     KC_V,     KC_B,     KC_N,     KC_M,     KC_COMM,  KC_DOT,   KC_SLSH,  KC_RSFT,      KC_NO,               KC_END,
         KC_LCTL,  KC_LGUI,  KC_LALT,                  KC_SPC,                                  KC_RALT,  KC_RCTL,          KC_LEFT,   KC_DOWN,  KC_UP,         KC_RGHT
     ),
+
+    /* 3: Smart Numbers layer (stays active untill first space, like CAPS WORD)
+     * ┌─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┐
+     * │     │     │     │     │     │     │     │     │     │     │     │     │     │     │     │     │
+     * ├─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┴─────┼─────┤
+     * │     │     │     │     │     │     │     │     │     │     │     │     │     │           │     │
+     * ├─────┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬────────┼─────┤
+     * │  EXIT  │     │  (  │  -  │     │     │     │     │  +  │  )  │     │     │     │        │     │
+     * ├────────┴┬────┴┬────┴┬────┴┬────┴┬────┴┬────┴┬────┴┬────┴┬────┴┬────┴┬────┴┬────┴────────┼─────┤
+     * │         │  1  │  2  │  3  │  4  │  /  │  *  │  7  │  8  │  9  │  0  │     │    EXIT     │     │
+     * ├─────────┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴─────────────┼─────┤
+     * │            │     │     │     │  5  │     │  6  │     │     │     │     │                │     │
+     * ├────┬──────┬┴────┬┴─────┴─────┴─────┴─────┴─────┴─────┴─┬───┴─┬───┴─┬───┴┬────┬────┬─────┼─────┤
+     * │    │      │     │                EXIT                  │     │     │    │    │    │     │     │
+     * └────┴──────┴─────┴──────────────────────────────────────┴─────┴─────┴────┴────┴────┴─────┴─────┘
+     */
+ //    [_SMART_NUM] = LAYOUT(
+ //        _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,
+ //        _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,            _______,
+ // TG(_SMART_NUM),  _______,  KC_LPRN,  KC_MINS,  _______,  _______,  _______,  _______,  KC_PLUS,  KC_RPRN,  _______,  _______,  _______,  _______,            _______,
+ //        _______,  KC_1,     KC_2,     KC_3,     KC_4,     KC_SLSH,  KC_ASTR,     KC_7,     KC_8,     KC_9,     KC_0,  _______,  TG(_SMART_NUM),               _______,
+ //        _______,  _______,  _______,  _______,  KC_5,     _______,  _______,     KC_6,  _______,  _______,  _______,  _______,  _______,                      _______,
+ //        _______,  _______,  _______,                            TG(_SMART_NUM),                             _______,  _______,  _______,  _______,  _______,  _______
+ //    ),
 };
